@@ -1,8 +1,10 @@
 class Instructions
   KEYPAD = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
+    [ nil, nil,   1, nil, nil],
+    [ nil,   2,   3,   4, nil],
+    [   5,   6,   7,   8,   9],
+    [ nil,  :A,  :B,  :C, nil],
+    [ nil, nil,  :D, nil, nil]
   ]
 
   def initialize(starting_button: 5, instructions:)
@@ -15,6 +17,8 @@ class Instructions
   def calculate
     @instructions.each_line.map do |line|
       line.each_char do |char|
+        x_was = @x
+        y_was = @y
         case char.downcase
         when 'u'
           @y -= 1
@@ -26,9 +30,14 @@ class Instructions
           @x += 1
         end
         @x = 0 if @x < 0
-        @x = 2 if @x > KEYPAD.size - 1
         @y = 0 if @y < 0
-        @y = 2 if @y > KEYPAD.size - 1
+        @x = KEYPAD.size - 1 if @x > KEYPAD.size - 1
+        @y = KEYPAD.size - 1 if @y > KEYPAD.size - 1
+
+        if button_at(@x, @y).nil?
+          @x = x_was
+          @y = y_was
+        end
       end
       button_at(@x, @y).to_s
     end.join
@@ -40,8 +49,8 @@ class Instructions
 end
 
 if __FILE__ == $0
-  puts 1985 == Instructions.new(instructions: DATA.read).calculate.to_i
-  puts Instructions.new(instructions: File.read(ARGV[0])).calculate.to_i
+  puts Instructions.new(instructions: DATA.read).calculate
+  puts Instructions.new(instructions: File.read(ARGV[0])).calculate
 end
 
 __END__
