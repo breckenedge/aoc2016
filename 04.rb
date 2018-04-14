@@ -42,10 +42,36 @@ class RealRoomsSelector
   RealRoom = Struct.new(:encrypted_name, :checksum, :most_common_letters)
 end
 
+class ShiftCypher
+  INDEXES = ('a'..'z').each_with_object({}) { |chr, hsh| hsh[chr.ord] = chr.ord }
+
+  attr_reader :input
+
+  def self.decrypt(input, shift = 0)
+    new(input).decrypt(shift)
+  end
+
+  def initialize(input)
+    @input = input
+  end
+
+  def decrypt(shift)
+    input.each_char.map do |chr|
+      if chr == '-'
+        ' '
+      else
+        (((chr.ord + shift - 97) % 26) + 97).chr
+      end
+    end.join
+  end
+end
+
 if __FILE__ == $0
   input = (ARGV.empty? ? DATA : ARGF).readlines.map(&:chomp)
   real_rooms = RealRoomsSelector.new(input).real_rooms
-  puts real_rooms.sum(&:checksum)
+  puts real_rooms.detect { |real_room|
+    ShiftCypher.decrypt(real_room.encrypted_name, real_room.checksum) == 'northpole object storage'
+  }.checksum
 end
 
 __END__
