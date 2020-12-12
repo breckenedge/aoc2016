@@ -16,6 +16,13 @@ module Day6
   end
 
   def p2(input = p2_input)
+    input.map do |line|
+      line.chars
+    end.transpose.map do |line|
+      counts = line.tally
+      lowest = counts.values.min
+      counts.invert[lowest]
+    end.join
   end
 
   def p2_input
